@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Extractor Pro | Docling Engine</title>
+  <!-- SEO Best Practices -->
+  <meta name="description" content="Extract unstructured data, text, tables, and layouts from complex PDFs with extreme precision using IBM's Docling engine. Accelerate processing with custom GPU and CPU rendering options.">
+  <meta name="robots" content="index, follow">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header id="main-header">
+      <div class="logo-section">
+        <div class="logo-icon">DE</div>
+        <div class="logo-text">
+          <h1>Document Extractor</h1>
+          <p>Powered by IBM Docling Engine</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="status-badge" id="global-status-badge">
+          <span class="status-dot" id="global-status-dot"></span>
+          <span id="global-status-text">Detecting HW...</span>
+        </div>
+        
+        <button class="btn btn-ghost" id="open-config-btn" aria-label="Open global configurations">
+          <i data-lucide="sliders"></i>
+          <span>Configuration</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Sidebar Control Panel -->
+      <aside class="sidebar">
+        
+        <!-- Upload Box -->
+        <div class="panel">
+          <h2 class="panel-title">
+            <i data-lucide="file-text"></i>
+            <span>Upload Document</span>
+          </h2>
+          
+          <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">
+              <i data-lucide="cloud-upload"></i>
+            </div>
+            <div class="upload-text">
+              <h3>Drag & drop PDF here</h3>
+              <p>or click to browse local files (Max 50MB)</p>
+            </div>
+            <input type="file" id="file-input" class="file-input" accept=".pdf">
+          </div>
+        </div>
+
+        <!-- History / Recent extractions -->
+        <div class="panel">
+          <h2 class="panel-title">
+            <i data-lucide="history"></i>
+            <span>Recent Extractions</span>
+          </h2>
+          
+          <div class="history-list" id="history-container">
+            <div class="empty-state" id="history-empty">
+              No files processed in this session.
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Viewer & Extraction Panel -->
+      <section class="panel main-content" id="viewer-panel">
+        
+        <div class="viewer-header">
+          <div class="viewer-title">
+            <h2 id="viewer-doc-title">Select a document</h2>
+            <div class="viewer-meta" id="viewer-doc-meta">Upload a PDF file to begin high-fidelity parsing</div>
+          </div>
+          
+          <div class="viewer-actions" id="viewer-actions" style="display: none;">
+            <button class="btn btn-ghost" id="copy-btn" title="Copy markdown to clipboard">
+              <i data-lucide="copy"></i>
+              <span>Copy</span>
+            </button>
+            <button class="btn btn-accent" id="download-btn" title="Download markdown file">
+              <i data-lucide="download"></i>
+              <span>Download</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Extraction Display Area -->
+        <div class="viewer-body">
+          
+          <!-- Processing/Progress Screen -->
+          <div class="processing-overlay" id="loading-overlay">
+            <div class="spinner-container">
+              <div class="spinner-outer"></div>
+              <div class="spinner-inner"></div>
+              <div class="spinner-center"></div>
+            </div>
+            <div class="progress-text">
+              <div class="progress-message" id="progress-message">Running Pipeline...</div>
+              <div class="progress-step" id="progress-step">Parsing document layout...</div>
+            </div>
+          </div>
+
+          <!-- Renderer -->
+          <div class="output-renderer" id="markdown-renderer">
+            <div class="empty-state">
+              <i data-lucide="sparkles" style="width: 48px; height: 48px; stroke-width: 1.5; color: var(--text-muted); margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;"></i>
+              <p>Upload a PDF document to extract clean structure, tables, and paragraphs dynamically formatted into Markdown.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Global Config Modal -->
+  <div class="modal-overlay" id="config-modal-overlay">
+    <div class="modal" id="config-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 id="modal-title">Global Pipeline Settings</h2>
+        <button class="close-btn" id="close-config-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Hardware acceleration option -->
+        <div class="form-group">
+          <label class="form-label">Hardware Acceleration Device</label>
+          <div class="device-selector">
+            
+            <div class="device-option" data-device="auto" id="opt-auto">
+              <input type="radio" name="device" value="auto" id="rad-auto">
+              <div class="device-option-label">AUTO</div>
+              <div class="device-option-desc">Auto-detect best hardware</div>
+            </div>
+
+            <div class="device-option" data-device="cpu" id="opt-cpu">
+              <input type="radio" name="device" value="cpu" id="rad-cpu">
+              <div class="device-option-label">CPU</div>
+              <div class="device-option-desc">Standard thread running</div>
+            </div>
+
+            <div class="device-option" data-device="gpu" id="opt-gpu">
+              <input type="radio" name="device" value="gpu" id="rad-gpu">
+              <div class="device-option-label">GPU</div>
+              <div class="device-option-desc">NVIDIA CUDA Speed</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Hardware & Environment diagnostics -->
+        <div class="form-group">
+          <label class="form-label">System Architecture Diagnostics</label>
+          <div class="diag-container">
+            <div class="diag-row">
+              <span class="diag-name">PyTorch Engine (Torch)</span>
+              <span class="diag-val" id="diag-torch">Checking...</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-name">NVIDIA CUDA Availability</span>
+              <span class="diag-val" id="diag-cuda">Checking...</span>
+            </div>
+            <div class="diag-row">
+              <span class="diag-name">Docling Parser Framework</span>
+              <span class="diag-val" id="diag-docling">Checking...</span>
+            </div>
+            <div class="gpu-detect-box" id="gpu-detect-row" style="display: none;">
+              <i data-lucide="cpu" style="width: 16px; height: 16px;"></i>
+              <span id="gpu-detected-name" style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary);"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save button -->
+        <button class="btn btn-primary" id="save-config-btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          <i data-lucide="check"></i>
+          <span>Save Changes</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast" id="app-toast">
+    <i data-lucide="info" id="toast-icon"></i>
+    <span id="toast-text">Configuration updated successfully!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // Initialize icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
